@@ -696,3 +696,23 @@ blockquote.inline {
     max-width: 900px;
     margin: 0 auto;
 }
+
+.viewer-contain {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+    float: left;
+}
+
+.viewer-contain .label {
+    float: left;
+}
+
+#viewer-link {
+    float: left;
+    background: #bbb;
+    color: #282828;
+    padding: 0px 5px;
+    margin-left: 5px;
+    border-radius: 2px;
+}
