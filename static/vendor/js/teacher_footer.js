@@ -90,6 +90,7 @@ function setupNewRoomButtonClickHandler(type) {
             roomFlag = true;
 
             //sendRecordCore();
+            generateViewerLink();
         }, function () {
             // btnSetupNewRoom.disabled = document.getElementById('conference-name').disabled = false;
         });
@@ -422,6 +423,11 @@ function beforeunload_trigger() {
         });
         //}, 10 * 1000);
     }
+}
+
+function generateViewerLink() {
+    var domain = urlString.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
+    document.getElementById('viewer-link').innerHTML = 'https://' + domain + '/viewer.html/?channel=' + urlParams.channel[0] + '&name=YourName';
 }
 
 //Refresh page after (60SEC * 60MIN * 3HRS) * 1000MS
