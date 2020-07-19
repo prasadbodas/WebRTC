@@ -21,6 +21,7 @@
     "javascript",
     "nodejs"
   ],
+  "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.463.0",
     "express": "^4.16.4",
