@@ -1,0 +1,164 @@
+
+<!doctype html>
+<html lang="eng">
+  <head>
+    <title>Conference</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
+    <script src="//webrtchacks.github.io/adapter/adapter-latest.js"></script>
+    <script src="red5/lib/screenfull/screenfull.min.js"></script>
+    <script src="red5/script/testbed-config.js"></script>
+    <script src="red5/script/red5pro-utils.js"></script>
+    <script src="red5/script/reachability.js"></script>
+    <script src="/vendor/js/socket.io.js"> </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="red5/css/reset.css">
+    <link rel="stylesheet" href="red5/css/testbed.css">
+    <link rel="stylesheet" href="red5/lib/red5pro/red5pro-media.css">
+    <link rel="stylesheet" href="red5/css/conference.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+      hr {
+        margin: 0;
+      }
+      .device-label {
+        width: 45%;
+        text-align: right;
+        display: inline-block;
+      }
+      .device-control {
+        max-width: 142px;
+      }
+      .device-info {
+        font-size: 0.7em;
+      }
+      .subscriber-container:first-child{
+        display: block !important;
+      }
+      .subscriber-container{
+        display: none;
+      }
+    </style>
+    <link rel="stylesheet" href="vendor/css/style.css">
+    <script src="red5/script/subscription-status.js"></script>
+  </head>
+  <body>
+    <article class="main_screen">
+      <section class="experiment screen_wrap">
+        <div class="experiment_btnwrap">
+          <div id="message_unload" class="message_unload">Please wait for the call.</div>
+          <button class="btn btn-primary" id="start-con" style="display: none;">Join</button>
+          <button class="btn btn-primary" id="start-con2" style="display: none;">Start</button>
+          <button class="btn btn-success" id="join-button" style="display: none;">Join!</button>
+
+          <button class="btn btn-success muteunmute" style="display:none;">Un mute</button>
+        </div>
+      </section>
+
+      <p id="status-field" class="centered status-field" style="display: none;">On hold.</p>
+      <script src="red5/script/publisher-status.js"></script>
+      <p id="statistics-field" class="centered status-field" style="display: none;"></p>
+
+      <div id="settings-container" style="display: none;">
+        <textarea id="so-field" disabled style="width: 50%; min-height: 240px; min-width: 320px"></textarea>
+        <p>
+          <label for="room-field">Room:</label>
+          <input id="room-field" name="room-field">
+
+          <p id="publisher-mute-controls" class="centered hidden">
+            <span id="publisher-name-field" class="hidden"></span>
+            <label for="video-check">Video: </label>
+            <input type="checkbox" id="video-check" name="video-check" checked>
+            <label for="audio-check">Audio: </label>
+            <input type="checkbox" id="audio-check" name="audio-check" checked>
+          </p>
+        </p>
+        <input id="streamname-field" name="streamname-field">
+      </div>
+
+
+      <div id="subscribers" class=""></div>
+      <video style="display: none;" id="red5pro-publisher" autoplay playsinline muted
+                 width="100%" height="auto"></video>
+    </article>
+    <div id="app">
+      
+      <div class="centered status-field">
+        
+      </div>
+      <div id="publisher-container" class="publisher-container auto-margined">
+        <div id="publisher-session" class="publisher-session hidden">
+          
+          
+        </div>
+        <div class="centered video-holder d-none">
+          
+        </div>
+        <div id="publisher-settings" class="publisher-settings">
+          
+        </div>
+      </div>
+      
+      <div class="centered status-field hidden">
+        <p>
+          <input type="text" id="input-field" />
+          <button id="send-button">send</button>
+        </p>
+        <hr>
+        <p>
+          <textarea id="so-field" disabled style="width: 50%; min-height: 240px; min-width: 320px"></textarea>
+        </p>
+      </div>
+    </div>
+    <script src="red5/es6/es6-promise.min.js"></script>
+    <script src="red5/es6/es6-bind.js"></script>
+    <script src="red5/es6/es6-array.js"></script>
+    <script src="red5/es6/es6-object-assign.js"></script>
+    <script src="red5/es6/es6-fetch.js"></script>
+    <script src="red5/lib/red5pro/red5pro-sdk.min.js"></script>
+    <script>
+      (function(window) {
+        var configuration = (function () {
+          var conf = sessionStorage.getItem('r5proTestBed');
+          try {
+            return JSON.parse(conf);
+          }
+          catch (e) {
+            console.error('Could not read testbed configuration from sessionstorage: ' + e.message);
+          }
+          return {}
+        })();
+    
+        if (configuration.verboseLogging) {
+          window.publisherLog = function (message) {
+            console.log('[Red5ProRTMPPublisher:SWF] - ' + message);
+          };
+          window.subscriberLog = function (message) {
+            console.log('[Red5ProRTMPSubscriber:SWF] - ' + message);
+          };
+        }
+    
+        if (configuration.authentication.enabled) {
+          var node = document.createElement('div');
+          node.classList.add('hint-block', 'auth-alert');
+          var note = document.createElement('span');
+          note.innerHTML = '*<strong>Authentication is Enabled</strong>*';
+          var link = document.createElement('a');
+          link.innerText = 'Click here to disable.';
+          link.href= '../../index.html';
+          link.classList.add('auth-link');
+          node.appendChild(note);
+          node.appendChild(link);
+          var testBody = document.getElementById('back-link-container').nextElementSibling;
+          testBody.parentNode.insertBefore(node, testBody);
+        }
+    
+      })(this);
+
+      
+    </script>
+    <script src="red5/js/conference-subscriber.js"></script>
+    <script src="red5/js/device-selector-util-r.js"></script>
+    <script src="red5/js/conference-index-r.js"></script>
+  </body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- *Recommended WebRTC Shim -->
+    <script src="https://webrtchacks.github.io/adapter/adapter-latest.js"></script>
+  </head>
+  <body>
+    <video id="red5pro-subscriber"
+           class="red5pro-media red5pro-media-background"
+           autoplay controls>
+    </video>
+    <!-- Red5 Pro SDK -->
+    <script src="lib/red5pro/red5pro-sdk.min.js"></script>
+    <!-- Create Pub/Sub -->
+    <script>
+      (function (red5prosdk) {
+
+            // Create a new instance of the WebRTC subcriber.
+            var subscriber = new red5prosdk.RTCSubscriber();
+
+            // Initialize
+            subscriber.init({
+              protocol: 'ws',
+              port: '5080',
+              host: 'medsrvr.einscriptions.com',
+              app: 'live',
+              streamName: 'mystream',
+              rtcConfiguration: {
+                  iceServers: [{urls: 'stun:stun2.l.google.com:19302'}],
+                  iceCandidatePoolSize: 5,
+                  bundlePolicy: 'max-bundle'
+              }, // See https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/RTCPeerConnection#RTCConfiguration_dictionary
+              mediaElementId: 'red5pro-subscriber',
+              subscriptionId: 'mystream1' + Math.floor(Math.random() * 0x10000).toString(16),
+              videoEncoding: 'NONE',
+              audioEncoding: 'NONE',
+              onGetUserMedia: function () {
+                return navigator.mediaDevices.getUserMedia({
+                  audio: true,
+                  video: {
+                    width: {
+                      max: 1920,
+                      ideal: 1280,
+                      min: 640
+                    },
+                    width: {
+                      max: 1080,
+                      ideal: 720,
+                      min: 360
+                    }
+                  }
+                })
+              }
+            })
+            .then(function(subscriber) {
+            // `subcriber` is the WebRTC Subscriber instance.
+            return subscriber.subscribe();
+            })
+            .then(function(subscriber) {
+            // subscription is complete.
+            // playback should begin immediately due to
+            //   declaration of `autoplay` on the `video` element.
+            })
+            .catch(function(error) {
+            // A fault occurred while trying to initialize and playback the stream.
+            console.error(error)
+            });
+
+            })(window.red5prosdk);
+    </script>
+  </body>
+</html>
