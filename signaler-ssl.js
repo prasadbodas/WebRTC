@@ -57,16 +57,13 @@ io.sockets.on('connection', function (socket) {
             initiatorChannel = data.channel;
         }
 
-        // https.get('einscriptions.com/api/?action=course&actionMethod=get_schedule_details&video_id=8771163335612671', (resp) => {
-        //     console.log(resp);
-        // });
         console.log('from new-channel', data.channel);
         channels[data.channel] = data.channel;
         onNewNamespace(data.channel, data.sender);
     });
 
     socket.on('presence', function (channel) {
-        var isChannelPresent = !! channels[channel];
+        var isChannelPresent = !!channels[channel];
         socket.emit('presence', isChannelPresent);
     });
 
@@ -86,9 +83,9 @@ function onNewNamespace(channel, sender) {
         }
 
         socket.on('message', function (data) {
-          console.log('on message', data.sender + ' == ' + sender);
+            console.log('on message', data.sender + ' == ' + sender);
             if (data.sender == sender) {
-                if(!username) username = data.data.sender;
+                if (!username) username = data.data.sender;
 
                 socket.broadcast.emit('message', data.data);
             }
@@ -101,32 +98,32 @@ function onNewNamespace(channel, sender) {
             if (data.sender == sender) {
                 var fileName = data.channel;
                 console.log('channel - ' + fileName);
-                writeToDisk(data.stream, fileName + '.webm');
+                //writeToDisk(data.stream, fileName + '.webm');
                 //writeToS3(data.stream, fileName + '.webm', data.partNumber);
             }
         });
 
-        socket.on('unmute-request',function(data){
+        socket.on('unmute-request', function (data) {
             //console.log('unmute-request ' + data);
             console.log(Object.keys(users));
-            if(data.to && users[data.to]){
-                users[data.to].emit('unmute-request',data);
+            if (data.to && users[data.to]) {
+                users[data.to].emit('unmute-request', data);
             }
         });
 
-        socket.on('disconnect', function() {
-            if(username) {
+        socket.on('disconnect', function () {
+            if (username) {
                 socket.broadcast.emit('user-left', username);
                 username = null;
             }
-            if(socket.sender && users[socket.sender]){
+            if (socket.sender && users[socket.sender]) {
                 delete users[socket.sender];
             }
         });
     });
 }
 
-app.listen(process.env.PORT||3000);
+app.listen(process.env.PORT || 3000);
 
 function writeToDisk(dataURL, fileName) {
     var fileExtension = fileName.split('.').pop(),
@@ -163,7 +160,7 @@ function writeToS3(dataURL, fileName) {
         Body: dataURL
     };
     console.log('before s3.upload');
-    s3.upload(params, function(s3Err, data) {
+    s3.upload(params, function (s3Err, data) {
         console.log(JSON.stringify(data));
         if (s3Err) throw s3Err
         console.log(`File uploaded successfully at ${data.Location}`)

@@ -11,10 +11,10 @@ var mediaRecorderCore = null;
 var roomFlag = false;
 
 var config = {
-    openSocket: function(config) {
+    openSocket: function (config) {
 
         config.channel = config.channel || urlParams.channel[0];
-        
+
         io.connect(SIGNALING_SERVER).emit('new-channel', {
             channel: config.channel,
             sender: sender
@@ -36,65 +36,64 @@ var config = {
 
         socket.on('message', config.onmessage);
 
-        socket.on("unmute-request",function(data){
-            var row = "<tr id='"+data.from+"'><td>"+data.name+" requested for unmute him.</td><td><button class='unmute'>Un mute</button><button class='decline'>Decline</button></td>";
+        socket.on("unmute-request", function (data) {
+            var row = "<tr id='" + data.from + "'><td>" + data.name + " requested for unmute him.</td><td><button class='unmute'>Un mute</button><button class='decline'>Decline</button></td>";
             $("#student-unmute-requests").append(row);
         });
     },
-    onRemoteStream: function(media) {
+    onRemoteStream: function (media) {
         console.log('onRemoteStream Media: ', media);
         var remoteStream = video.srcObject;
-        console.log('onRemoteStream - remoteStream', remoteStream.getTracks() );
+        console.log('onRemoteStream - remoteStream', remoteStream.getTracks());
 
         var videoTrack = remoteStream.getVideoTracks();
         if (videoTrack.length > 0) {
-          remoteStream.removeTrack(videoTrack[0]);
+            remoteStream.removeTrack(videoTrack[0]);
         }
-        console.log('onRemoteStream - audiotrak', remoteStream.getTracks() );
+        console.log('onRemoteStream - audiotrak', remoteStream.getTracks());
 
         var mediaElement = getAudioElement(remoteStream, {
             width: (videosContainer.clientWidth / 2) - 50,
             buttons: ['mute-audio', 'mute-video', 'full-screen', 'volume-slider']
         });
         mediaElement.id = media.stream.streamid;
-        mediaElement.style.display="none";
+        mediaElement.style.display = "none";
         videosContainer.appendChild(mediaElement);
     },
-    onRemoteStreamEnded: function(stream, video) {
+    onRemoteStreamEnded: function (stream, video) {
         if (video.parentNode && video.parentNode.parentNode && video.parentNode.parentNode.parentNode) {
             video.parentNode.parentNode.parentNode.removeChild(video.parentNode.parentNode);
         }
     },
-    onRoomClosed: function(room) {
+    onRoomClosed: function (room) {
         var joinButton = document.querySelector('button[data-roomToken="' + room.roomToken + '"]');
         if (joinButton) {
             joinButton.parentNode.parentNode.parentNode.parentNode.removeChild(joinButton.parentNode.parentNode.parentNode);
         }
     },
-    onReady: function() {
+    onReady: function () {
 
     },
-    onRoomFound:function(){}
+    onRoomFound: function () {}
 };
 
 function setupNewRoomButtonClickHandler(type) {
-    alert(1);
-    if(roomFlag == false){
+    if (roomFlag == false) {
         //startElem.disabled = true;
         //stopElem.disabled = true;
         // document.getElementById('conference-name').disabled = true;
-        captureUserMedia(type, function() {
+        captureUserMedia(type, function () {
             conferenceUI.createRoom({
                 roomName: 'Anonymous',
-                sender:sender
+                sender: sender
             });
             roomFlag = true;
 
-            sendRecordCore();
-        }, function() {
+            //sendRecordCore();
+        }, function () {
             // btnSetupNewRoom.disabled = document.getElementById('conference-name').disabled = false;
         });
-    }else{
+    } else {
         stopCapture();
     }
 }
@@ -117,8 +116,8 @@ async function captureUserMedia(type, callback, failure_callback) {
     btnSetupNewRoom.disabled = true;
 
     var constraints = {
-        audio:true,
-        video:true
+        audio: true,
+        video: true
     };
 
     // video.style.width="200px";
@@ -127,7 +126,7 @@ async function captureUserMedia(type, callback, failure_callback) {
     getUserMedia({
         video: video,
         constraints: constraints,
-        onsuccess: function(stream) {
+        onsuccess: function (stream) {
             startElem.disabled = false;
             endSess.disabled = false;
 
@@ -142,7 +141,7 @@ async function captureUserMedia(type, callback, failure_callback) {
             videosContainer.appendChild(mediaElement);
             callback && callback();
         },
-        onerror: function() {
+        onerror: function () {
             alert('unable to get access to your webcam');
             callback && callback();
         }
@@ -151,33 +150,33 @@ async function captureUserMedia(type, callback, failure_callback) {
 
 var conferenceUI = conference(config);
 
-$("body").on("click",".unmute",function(){
+$("body").on("click", ".unmute", function () {
     $(this).hide();
     $(this).parents("tr").find(".decline").html("Mute");
     $(this).parents("tr").find(".decline").addClass('mute').removeClass('decline');
     var data = {
-        to:$(this).parents("tr").attr("id"),
-        type:"unmute"
+        to: $(this).parents("tr").attr("id"),
+        type: "unmute"
     };
-    socketConn.emit("unmute-request",data);
+    socketConn.emit("unmute-request", data);
 });
 
-$("body").on("click",".decline",function(){
+$("body").on("click", ".decline", function () {
     $(this).parents("tr").remove();
     var data = {
-        to:$(this).parents("tr").attr("id"),
-        type:"decline"
+        to: $(this).parents("tr").attr("id"),
+        type: "decline"
     };
-    socketConn.emit("unmute-request",data);
+    socketConn.emit("unmute-request", data);
 });
 
-$("body").on("click",".mute",function(){
+$("body").on("click", ".mute", function () {
     $(this).parents("tr").remove();
     var data = {
-        to:$(this).parents("tr").attr("id"),
-        type:"mute"
+        to: $(this).parents("tr").attr("id"),
+        type: "mute"
     };
-    socketConn.emit("unmute-request",data);
+    socketConn.emit("unmute-request", data);
 });
 
 /* UI specific */
@@ -186,28 +185,28 @@ var btnSetupNewRoom = document.getElementById('setup-new-room');
 // var roomsList = document.getElementById('rooms-list');
 
 
-if (btnSetupNewRoom) btnSetupNewRoom.onclick = function(){
-    alert(1);
+if (btnSetupNewRoom) btnSetupNewRoom.onclick = function () {
     setupNewRoomButtonClickHandler('video');
 };
 
 function rotateVideo(video) {
     video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-    setTimeout(function() {
+    setTimeout(function () {
         video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
     }, 1000);
 }
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken)
         if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;display: block;"><a href="' + location.href + '" target="_blank">Right click to copy & share this private link</a></h2>';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
 })();
 
 function scaleVideos() {
     var videos = document.querySelectorAll('video'),
-        length = videos.length, video;
+        length = videos.length,
+        video;
 
     var minus = 130;
     var windowHeight = 700;
@@ -239,14 +238,14 @@ window.onresize = scaleVideos;
 
 
 // Set event listeners for the start and stop buttons
-startElem.addEventListener("click", async function(evt) {
-    mediaRecorderCore.stop();
+startElem.addEventListener("click", async function (evt) {
+    //mediaRecorderCore.stop();
     var displayMediaOptions = {
         video: true,
         audio: false
     };
     var newStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
-    if(newStream){
+    if (newStream) {
 
         myStream.addTrack(newStream.getVideoTracks()[0]);
         myStream.removeTrack(video.srcObject.getVideoTracks()[0]);
@@ -262,20 +261,20 @@ startElem.addEventListener("click", async function(evt) {
         btnSetupNewRoom.disabled = false;
         endSess.disabled = false;
 
-        sendRecordCore();
+        //sendRecordCore();
 
         video.muted = true;
     }
 }, false);
 
 async function stopCapture() {
-    mediaRecorderCore.stop();
+    //mediaRecorderCore.stop();
     var displayMediaOptions = {
         video: true,
         audio: true
     };
     var newStream = await navigator.mediaDevices.getUserMedia(displayMediaOptions);
-    if(newStream){
+    if (newStream) {
 
         myStream.removeTrack(video.srcObject.getVideoTracks()[0]);
         myStream.addTrack(newStream.getVideoTracks()[0]);
@@ -283,13 +282,13 @@ async function stopCapture() {
         video.srcObject = myStream;
         video.muted = false;
         var screenVideoTrack = video.srcObject.getVideoTracks()[0];
-        conferenceUI.updateStream(screenVideoTrack,myStream);
+        conferenceUI.updateStream(screenVideoTrack, myStream);
 
         startElem.disabled = false;
         btnSetupNewRoom.disabled = true;
         endSess.disabled = false;
 
-        sendRecordCore();
+        //sendRecordCore();
 
 
         video.muted = true;
@@ -305,19 +304,19 @@ function dumpOptionsInfo(videoStream) {
     config.attachStream = videoStream;
     conferenceUI.createRoom({
         roomName: 'Anonymous',
-        sender:sender
+        sender: sender
     });
 }
 
 
-function sendRecord(){
+function sendRecord() {
     var captureStream = video.srcObject;
     mediaRecorder = new MediaStreamRecorder(captureStream);
     mediaRecorder.mimeType = 'video/mp4';
     mediaRecorder.ondataavailable = function (blob) {
         var reader = new FileReader();
         reader.readAsDataURL(blob);
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             // socketConn.emit('video-stream', {
             //     sender: sender,
             //     stream: event.target.result,
@@ -325,16 +324,16 @@ function sendRecord(){
             // });
 
             $.ajax({
-              url: 'http://localhost/tools/lms/save.php',
-              type: 'POST',
-              async: false,
-              data: {
+                url: 'http://localhost/tools/lms/save.php',
+                type: 'POST',
+                async: false,
+                data: {
                     sender: sender,
                     stream: event.target.result,
                     channel: urlParams.channel[0]
                 },
                 crossDomain: true,
-            }).done(function( data ) {
+            }).done(function (data) {
                 console.log(data);
                 console.log('saved! ' + da);
             });
@@ -346,21 +345,22 @@ function sendRecord(){
 
 var ondataavailable_count = 0;
 var da = 1;
-function sendRecordCore(){
+
+function sendRecordCore() {
     mediaRecorderCore = null;
     var options = {
-        mimeType : 'video/webm;codecs=vp8',
+        mimeType: 'video/webm;codecs=vp8',
         //audioBitsPerSecond: 2000000, // 1 Mbps
         //bitsPerSecond: 2500000      // 2 Mbps
     }
     var captureStream = video.srcObject;
-    mediaRecorderCore = new MediaRecorder(captureStream, options);
+    //mediaRecorderCore = new MediaRecorder(captureStream, options);
     da++;
     mediaRecorderCore.ondataavailable = function (dataavailable) {
         console.log(' Recorded chunk of size ' + (dataavailable.data.size / 1024) / 1024 + " MB");
         var reader = new FileReader();
         reader.readAsDataURL(dataavailable.data);
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             // socketConn.emit('video-stream', {
             //     sender: sender,
             //     stream: event.target.result,
@@ -368,40 +368,39 @@ function sendRecordCore(){
             // });
 
             $.ajax({
-              //url: 'http://localhost/lms/recording/save.php',
-              url: 'https://einscriptions.com/recording/save.php',
-              type: 'POST',
-            //   async: false,
-              data: {
+                url: 'http://localhost/lms/recording/save.php',
+                type: 'POST',
+                //   async: false,
+                data: {
                     sender: sender,
                     stream: event.target.result,
                     channel: urlParams.channel[0] + '-' + da
                 },
                 crossDomain: true,
-            }).done(function( data ) {
+            }).done(function (data) {
                 console.log(data);
                 console.log('saved! ' + da);
             });
         };
         ondataavailable_count++;
     };
-    mediaRecorderCore.start(10 * 1000);
+    //mediaRecorderCore.start(10 * 1000);
 
     // console.log('mediaRecorderCore', mediaRecorderCore);
 }
 
-endSess.onclick = function(){
+endSess.onclick = function () {
     beforeunload_trigger();
 }
 
-$(window).bind("beforeunload", function() {
+$(window).bind("beforeunload", function () {
     beforeunload_trigger();
 });
 
-function beforeunload_trigger(){
-    if(confirm("Are you sure, want to end this session?")){
-        mediaRecorderCore.stop();
-        myStream.getTracks().forEach(function(track) {
+function beforeunload_trigger() {
+    if (confirm("Are you sure, want to end this session?")) {
+        //mediaRecorderCore.stop();
+        myStream.getTracks().forEach(function (track) {
             track.stop();
         });
 
@@ -413,15 +412,14 @@ function beforeunload_trigger(){
 
         //initiate video merging in 10SEC after end session in new tab
         //setTimeout(function(){
-            $.ajax({
-                //url: 'http://localhost/lms/recording/merge-videos.php?roomid=' + urlParams.channel[0],
-                url: 'https://einscriptions.com/api/?action=user&actionMethod=update_video_status&video_id='+urlParams.channel[0]+'&session_status=1',
-                type: 'GET',
-                crossDomain: true,
-            }).done(function( data ) {
-                console.log(data);
-                console.log('saved! ' + da);
-            });
+        $.ajax({
+            url: 'http://localhost/lms/recording/merge-videos.php?roomid=' + urlParams.channel[0],
+            type: 'GET',
+            crossDomain: true,
+        }).done(function (data) {
+            console.log(data);
+            console.log('saved! ' + da);
+        });
         //}, 10 * 1000);
     }
 }
