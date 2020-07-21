@@ -18,6 +18,3 @@ Follow these steps:
 5. Type `npm start` to run the node.js server
 
 Then open `http://localhost:3000/`.
-
-# How to use?
-
